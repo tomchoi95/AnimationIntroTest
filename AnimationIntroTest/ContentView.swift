@@ -11,10 +11,11 @@ struct ContentView: View {
     
     @State private var selectedItem: Item = items.first!
     @State private var introItems: [Item] = items
+    @State private var activateIndex: Int = 0
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                
+                updateItem(isForward: false)
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.title3.bold())
@@ -52,7 +53,7 @@ struct ContentView: View {
                     .foregroundStyle(.gray)
                 
                 Button {
-                    
+                    updateItem(isForward: true)
                 } label: {
                     Text(selectedItem.id == introItems.last?.id ? "Continue" : "Next")
                         .fontWeight(.semibold)
@@ -68,30 +69,71 @@ struct ContentView: View {
             .frame(width: 300)
             .frame(maxHeight: .infinity)
         }
+    }
+    
+    @ViewBuilder
+    func AnimatedIconView(_ item: Item) -> some View {
+        let isSelected = selectedItem.id == item.id
         
-        @ViewBuilder
-        func AnimatedIconView(_ item: Item) -> some View {
-            let isSelected = selectedItem.id == item.id
-            Image(systemName: item.image)
-                .font(.system(size: 80))
-                .foregroundStyle(.white.shadow(.drop(radius: 10)))
-                .frame(width: 120, height: 120)
-                .background(.green.gradient, in: .rect(cornerRadii: 35))
-                .background {
-                    RoundedRectangle(cornerRadius: 35)
-                        .fill(.background)
-                        .shadow(color: .primary.opacity(0.2), radius: 1, x: 1, y: 1)
-                        .shadow(color: .primary.opacity(0.2), radius: 1, x: -1, y: -1)
-                        .padding(-3)
-                        .opacity(selectedItem.id == item.id ? 1 : 0)
-                }
-                .rotationEffect(.init(degrees: item.rotation))
-                .scaleEffect(isSelected ? 1.1 : item.scale, anchor: item.anchor)
-                .offset(x: item.offset)
-                .rotationEffect(.init(degrees: item.rotation))
-            
+        Image(systemName: item.image)
+            .font(.system(size: 80))
+            .foregroundStyle(.white.shadow(.drop(radius: 10)))
+            .frame(width: 120, height: 120)
+            .background(.green.gradient, in: .rect(cornerRadius: 32))
+            .background {
+                RoundedRectangle(cornerRadius: 35)
+                    .fill(.background)
+                    .shadow(color: .primary.opacity(0.2), radius: 1, x: 1, y: 1)
+                    .shadow(color: .primary.opacity(0.2), radius: 1, x: -1, y: -1)
+                    .padding(-3)
+                    .opacity(selectedItem.id == item.id ? 1 : 0)
+            }
+            .rotationEffect(.init(degrees: item.rotation))
+            .scaleEffect(isSelected ? 1.1 : item.scale, anchor: item.anchor)
+            .offset(x: item.offset)
+            .rotationEffect(.init(degrees: item.rotation))
+            .zIndex(isSelected ? 2 : item.zIndex)
+        
+    }
+    
+    func updateItem(isForward: Bool) {
+        guard isForward ? activateIndex != introItems.count - 1 : activateIndex != 0 else { return }
+        
+        var fromIndex: Int
+        
+        if isForward {
+            activateIndex += 1
+        } else {
+            activateIndex -= 1
         }
         
+        if isForward {
+            fromIndex = activateIndex - 1
+        }
+        else {
+            fromIndex = activateIndex + 1
+        }
+        for index in introItems.indices {
+            introItems[index].zIndex = 0
+        }
+        Task {
+            withAnimation(.bouncy(duration: 1.5)) {
+                introItems[fromIndex].scale = introItems[activateIndex].scale
+                introItems[fromIndex].rotation = introItems[activateIndex].rotation
+                introItems[fromIndex].anchor = introItems[activateIndex].anchor
+                introItems[fromIndex].offset = introItems[activateIndex].offset
+                introItems[fromIndex].zIndex = 1
+            }
+            try? await Task.sleep(for: .seconds(0.1))
+            withAnimation(.bouncy(duration: 0.9)) {
+                introItems[activateIndex].scale = 1
+                introItems[activateIndex].rotation = .zero
+                introItems[activateIndex].anchor = .center
+                introItems[activateIndex].offset = .zero
+                
+                selectedItem = introItems[activateIndex]
+            }
+        }
     }
 }
 

@@ -23,7 +23,7 @@ struct Item: Identifiable {
 let items: [Item] = [
     Item(image: "figure.walk.circle.fill", title: "Keep an eye on your workout.", scale: 1),
     Item(image: "figure.run.circle.fill", title: "Maintain your cardio fitness", scale: 0.6, anchor: .topLeading, offset: -70, rotation: 30),
-    Item(image: "figure.badminton.circle.fill", title: "Take a break from work and relax", scale: 0.5, anchor: .bottomLeading, offset: -60, rotation: 35),
+    Item(image: "figure.badminton.circle.fill", title: "Take a break from work and relax", scale: 0.5, anchor: .bottomLeading, offset: -60, rotation: -35),
     Item(image: "figure.climbing.circle.fill", title: "Turn climbing into a hobby", scale: 0.4, anchor: .bottomLeading, offset: -50, rotation: 160),
-    Item(image: "figure.cooldown.circle.fill", title: "Cool down after a workout", scale: 0.4, anchor: .bottomLeading, offset: -50, rotation: 2500),
+    Item(image: "figure.cooldown.circle.fill", title: "Cool down after a workout", scale: 0.35, anchor: .bottomLeading, offset: -50, rotation: 250),
 ]
